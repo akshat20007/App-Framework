@@ -14,7 +14,7 @@ import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.trello.R
 import com.example.trello.activities.firebase.FirestoreClass
-import com.example.trello.activities.models.Board
+import com.example.trello.activities.models.Tourni
 import com.example.trello.activities.utils.Constants
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
@@ -112,11 +112,11 @@ class CreateBoardActivity : BaseActivity() {
     private fun createBoard(){
         val assignedUserArrayList: ArrayList<String> = ArrayList()
         assignedUserArrayList.add(getCurrentUserId())
-        var board = Board(
+        var board = Tourni(
             et_board_name.text.toString(),
             mBoardImageURL,
             mUserName,
-            assignedUserArrayList
+//            assignedUserArrayList
         )
 
         FirestoreClass().createBoard(this, board)

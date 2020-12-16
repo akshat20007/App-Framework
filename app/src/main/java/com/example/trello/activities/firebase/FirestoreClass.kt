@@ -5,7 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import com.example.trello.activities.MyProfileActivity
 import com.example.trello.activities.*
-import com.example.trello.activities.models.Board
+import com.example.trello.activities.models.Tourni
 import com.example.trello.activities.models.User
 import com.example.trello.activities.utils.Constants
 import com.google.firebase.auth.FirebaseAuth
@@ -25,8 +25,8 @@ class FirestoreClass {
         }
     }
 
-    fun createBoard(activity: CreateBoardActivity, board: Board){
-        mFireStore.collection(Constants.BOARDS)
+    fun createBoard(activity: CreateBoardActivity, board: Tourni){
+        mFireStore.collection(Constants.TORNI)
             .document()
             .set(board, SetOptions.merge())
             .addOnSuccessListener {
@@ -40,6 +40,24 @@ class FirestoreClass {
                 Log.e(activity.javaClass.simpleName,
                 "Error while creating a board.",
                 exception)
+            }
+    }
+
+    fun getBoardsList(activity: MainActivity){
+        mFireStore.collection(Constants.TORNI)
+            .whereArrayContains(Constants.SLOTS, getCurrentUserId())
+            .get()
+            .addOnSuccessListener {
+                    document->
+                Log.e(activity.javaClass.simpleName, document.documents.toString())
+                val boardlist: ArrayList<Tourni> = ArrayList()
+                for(i in document.documents){
+                    val board = i.toObject(Tourni::class.java)!!
+                    board.documentId = i.id
+                    boardlist.add(board)
+                }
+
+                activity.populateBoardListUI(boardlist)
             }
     }
 
@@ -63,7 +81,7 @@ class FirestoreClass {
             }
     }
 
-    fun loadUserData(activity: Activity){
+    fun loadUserData(activity: Activity, readBoardsList: Boolean = false){
         mFireStore.collection(Constants.USERS)
             .document(getCurrentUserId())
             .get()
@@ -74,7 +92,7 @@ class FirestoreClass {
                         activity.signInSuccess(loggedInUser)
                     }
                     is MainActivity -> {
-                        activity.updateNavigationUserDetails(loggedInUser)
+                        activity.updateNavigationUserDetails(loggedInUser,readBoardsList)
                     }
                     is MyProfileActivity -> {
                         activity.setUserDataInUI(loggedInUser)
